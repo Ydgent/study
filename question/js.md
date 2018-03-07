@@ -131,3 +131,181 @@ window.onhashchange = () => {
   document.body.scrollTop = document.documentElement.scrollTop = 0;
 };
 ```
+### 4.一些用到的典型的正则
+案例：正则匹配字符串，实现某些功能。
+
+例子：
+```javascript
+// 转化号码
+phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') // "183****5136"
+// 解析url
+const url = /(\w+):\/\/([\w.]+)\/(\S*)/;
+const text = "Visit my github http://github.com/Ydgent";
+text.match(url); // ["http://github.com/Ydgent", "http", "github.com", "Ydgent", index: 16, input: "Visit my github http://github.com/Ydgent"]
+```
+推荐地址：
+https://c.runoob.com/front-end/854 
+
+http://www.lovebxm.com/2017/05/31/RegExp/
+### 5.鼠标滚轮事件与事件绑定函数
+案例：
+标签添加滚轮时间兼容ie
+
+解决方法：（核心代码）
+
+```javascript
+  var oDiv = document.getElementById('box');
+  // 鼠标滚轮事件
+  function onMouseWheel(ev){
+    var oEvent=ev||event;
+    var bDown=true;
+    bDown=oEvent.wheelDelta?oEvent.wheelDelta<0:oEvent.detail>0;
+    if(bDown){   //滚轮向下滚动
+      console.log('向下滚动')
+    } else{
+      console.log('向上滚动')
+    }
+    if(oEvent.preventDefault){  //FF下addEventListener用preventDefault阻止莫认事件；
+      oEvent.preventDefault();
+    }
+    return false;
+  }
+
+  // 事件绑定
+  // element.addEventListener(event, function, useCapture)
+  // element.attachEvent(event, function) // ie下需要加on
+  function addEventHandler (target,type,fn){
+    if(target.attachEvent){ 
+      target.attachEvent('on'+type,fn);
+    } else{ 
+      target.addEventListener(type,fn,false);
+    }
+  }
+  // 事件移除
+  function removeEventHandler(target,type,fn){
+    if(target.removeEventListener){
+    target.removeEventListener(type,fn);
+    }else{
+    target.detachEvent("on"+type,fn);
+    }
+  }
+  addEventHandler(oDiv,'mousewheel',onMouseWheel);    //addEventHandler为自定义函数。事件绑定在上面;
+  addEventHandler(oDiv,'DOMMouseScroll',onMouseWheel);
+```
+### 6.深拷贝
+案例：
+对象深拷贝，防止干扰。
+
+解决方法：（核心代码）
+```javascript
+  // 第一种方法
+  function deepCopy(p, c) {
+    var c = c || {};
+    for (var i in p) {
+      if (typeof p[i] === 'object') {
+        c[i] = (p[i].constructor === Array) ? [] : {};
+        deepCopy(p[i], c[i]);
+      } else {
+        c[i] = p[i];
+      }
+    }
+    return c;
+  }
+  var Doctor = deepCopy(Chinese);
+  Chinese.birthPlaces = ['北京','上海','香港'];
+  Doctor.birthPlaces.push('厦门');
+  alert(Doctor.birthPlaces); //北京, 上海, 香港, 厦门
+  alert(Chinese.birthPlaces); //北京, 上海, 香港
+  // 第二种方法
+  JSON.parse(JSON.stringify);
+
+```
+### 6.判断机型（ios or android)
+
+解决方法：（核心代码）
+```javascript
+  // 第一种方法
+  var ua = navigator.userAgent.toLowerCase();
+  if (/iphone/.test(ua)) {
+    // ios
+  }else if (/android/.test(ua)) {
+    // android
+  }
+
+  // 第二种方法
+  var u = navigator.userAgent;
+  var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+  var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+  if (isAndroid) {
+    //android终端  showToast android的原生方法
+    android.showToast("哈哈啊哈");
+    alert('android');
+
+    var getMsg = "{" + '"share_txt":' + '"' + share_txt + '"' + ',"title_txt":' + '"' + share_txt + '" ' + ', "webHref":' + '"' + ApiRoot + "/pages/account/share_loginregister.html?inviter=" + (investorId != null ? investorId : 0) + '"' + ',"imgHref":' + '"' + MarketRoot + "/Content/img/LOGO_300x300.png" + '"' + "}";
+      // inviteFriends是android原生方法，将getMsg传给android
+      window.android.inviteFriends(getMsg);
+  }
+  if (isiOS) {
+    //ios终端
+    alert('ios')
+  }
+```
+### 7.rem布局
+
+解决方法：（核心代码）
+```javascript
+  (function (doc, win) {
+    var docEl = doc.documentElement,
+      resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
+      recalc = function () {
+        var clientWidth = docEl.clientWidth;
+        if (!clientWidth) return;
+        docEl.style.fontSize = 100 * (clientWidth / 320) + 'px';
+      };
+
+    // Abort if browser does not support addEventListener
+    if (!doc.addEventListener) return;
+    win.addEventListener(resizeEvt, recalc, false);
+    doc.addEventListener('DOMContentLoaded', recalc, false);
+  })(document, window);
+```
+### 8.屏幕旋转的事件和样式
+
+解决方法：（核心代码）
+```javascript
+  function orientInit(){
+    var orientChk = document.documentElement.clientWidth >   document.documentElement.clientHeight?'landscape':'portrait';
+    if(orientChk =='lapdscape'){
+        //这里是横屏下需要执行的事件
+    }else{
+        //这里是竖屏下需要执行的事件
+    }
+  }
+  orientInit();
+  window.addEventListener('onorientationchange' in window?'orientationchange':'resize', function(){
+      setTimeout(orientInit, 100);
+  },false)
+
+  //CSS处理
+  //竖屏时样式
+  @media all and (orientation:portrait){   }
+  //横屏时样式
+  @media all and (orientation:landscape){   }
+```
+参考地址：http://blog.163.com/lzyi_117/blog/static/117925906201721111141438/（软键盘与定位）
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
